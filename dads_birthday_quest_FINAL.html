@@ -1,0 +1,4272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width,
+               initial-scale=1.0,
+               maximum-scale=1.0,
+               user-scalable=no">
+
+<title>DAD'S BIRTHDAY QUEST</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+}
+
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #090018;
+    touch-action: none;
+}
+
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#gameWrap {
+    position: relative;
+
+    width: min(100vw, 1100px);
+    aspect-ratio: 16 / 9;
+
+    max-height: 100vh;
+
+    background: #111;
+    overflow: hidden;
+
+    border: 5px solid #fff;
+
+    box-shadow:
+        0 0 0 5px #ff2bd6,
+        0 0 35px #ff2bd6;
+}
+
+canvas {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+
+    touch-action: none;
+}
+
+
+/* ============================================================
+   MOBILE CONTROLS
+   ============================================================ */
+
+#touch {
+    display: flex;
+
+    position: absolute;
+
+    left: 0;
+    right: 0;
+    bottom: 15px;
+
+    justify-content: space-between;
+
+    padding: 0 18px;
+
+    pointer-events: none;
+}
+
+.touchGroup {
+    display: flex;
+    gap: 12px;
+}
+
+.touchBtn {
+    pointer-events: auto;
+
+    width: 70px;
+    height: 70px;
+
+    border: 3px solid white;
+    border-radius: 15px;
+
+    background: rgba(255, 43, 214, 0.45);
+
+    color: white;
+
+    font-family: monospace;
+    font-weight: bold;
+    font-size: 28px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-shadow:
+        0 0 12px #ff2bd6,
+        inset 0 0 12px rgba(255,255,255,.2);
+
+    touch-action: none;
+
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.touchBtn:active {
+    background: rgba(37, 231, 255, 0.65);
+    transform: scale(.92);
+}
+
+
+/* ============================================================
+   PHONE LAYOUT
+   ============================================================ */
+
+@media (max-width: 700px) {
+
+    #gameWrap {
+        width: 100vw;
+        height: 56.25vw;
+        max-height: 100vh;
+        border-width: 3px;
+    }
+
+    .touchBtn {
+        width: 64px;
+        height: 64px;
+    }
+}
+
+/* LANDSCAPE PHONE FIX
+   In landscape, the phone can be wider than 700px while still
+   being much shorter than 16:9. Constrain the game by HEIGHT
+   so the bottom touch controls stay inside the visible screen.
+*/
+@media (orientation: landscape) and (max-height: 700px) {
+    #gameWrap {
+        width: min(100vw, calc(100vh * 16 / 9));
+        height: min(100vh, calc(100vw * 9 / 16));
+        max-width: 100vw;
+        max-height: 100dvh;
+        margin: 0 auto;
+    }
+
+    #touch {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding:
+            0
+            max(12px, env(safe-area-inset-right))
+            max(10px, env(safe-area-inset-bottom))
+            max(12px, env(safe-area-inset-left));
+        height: clamp(70px, 19vh, 105px);
+        align-items: flex-end;
+        z-index: 20;
+    }
+
+    .touchGroup {
+        gap: clamp(7px, 2vw, 12px);
+    }
+
+    .touchBtn {
+        width: clamp(50px, 15vh, 72px);
+        height: clamp(50px, 15vh, 72px);
+        min-width: 50px;
+        min-height: 50px;
+        font-size: clamp(20px, 6vh, 30px);
+        flex: 0 0 auto;
+    }
+}
+
+@supports (height: 100dvh) {
+    html, body {
+        height: 100dvh;
+    }
+}
+
+
+/* FINAL MOBILE / LANDSCAPE LAYOUT FIX */
+@media (max-width: 700px) {
+    body {
+        width: 100vw;
+        height: 100dvh;
+    }
+
+    #gameWrap {
+        width: 100vw;
+        height: min(56.25vw, 100dvh);
+        max-width: 100vw;
+        max-height: 100dvh;
+        border-width: 3px;
+    }
+
+    #touch {
+        bottom: max(8px, env(safe-area-inset-bottom));
+        padding-left: max(10px, env(safe-area-inset-left));
+        padding-right: max(10px, env(safe-area-inset-right));
+        z-index: 100;
+    }
+
+    .touchBtn {
+        width: clamp(58px, 16vw, 72px);
+        height: clamp(58px, 16vw, 72px);
+    }
+}
+
+@media (orientation: landscape) and (max-height: 700px) {
+    #gameWrap {
+        width: min(100vw, calc(100dvh * 16 / 9));
+        height: min(100dvh, calc(100vw * 9 / 16));
+        max-width: 100vw;
+        max-height: 100dvh;
+    }
+
+    #touch {
+        bottom: max(8px, env(safe-area-inset-bottom));
+        height: auto;
+        padding:
+            0
+            max(10px, env(safe-area-inset-right))
+            max(8px, env(safe-area-inset-bottom))
+            max(10px, env(safe-area-inset-left));
+    }
+
+    .touchBtn {
+        width: clamp(52px, 15dvh, 72px);
+        height: clamp(52px, 15dvh, 72px);
+        font-size: clamp(22px, 6dvh, 30px);
+    }
+}
+
+</style>
+</head>
+
+
+<body>
+
+<div id="gameWrap">
+
+    <canvas
+        id="game"
+        width="960"
+        height="540">
+    </canvas>
+
+
+    <!-- PHONE CONTROLS -->
+
+    <div id="touch">
+
+        <div class="touchGroup">
+
+            <div
+                class="touchBtn"
+                id="left">
+                ◀
+            </div>
+
+            <div
+                class="touchBtn"
+                id="right">
+                ▶
+            </div>
+
+        </div>
+
+
+        <div class="touchGroup">
+
+            <div
+                class="touchBtn"
+                id="jump">
+                ▲
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+"use strict";
+
+
+/* ============================================================
+   DAD'S BIRTHDAY QUEST
+   ============================================================ */
+
+
+const canvas = document.getElementById("game");
+
+const ctx = canvas.getContext("2d");
+
+ctx.imageSmoothingEnabled = false;
+
+
+const W = canvas.width;
+const H = canvas.height;
+
+
+/* ============================================================
+   AUDIO
+   ============================================================ */
+
+let audioCtx = null;
+
+
+function startAudio() {
+
+    if (!audioCtx) {
+
+        audioCtx =
+            new (window.AudioContext ||
+                 window.webkitAudioContext)();
+
+    }
+
+    if (audioCtx.state === "suspended") {
+        audioCtx.resume();
+    }
+}
+
+
+function beep(
+    freq,
+    duration = .08,
+    type = "square",
+    volume = .035
+) {
+
+    if (!audioCtx) return;
+
+    const osc =
+        audioCtx.createOscillator();
+
+    const gain =
+        audioCtx.createGain();
+
+
+    osc.type = type;
+
+    osc.frequency.value = freq;
+
+
+    gain.gain.setValueAtTime(
+        volume,
+        audioCtx.currentTime
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+        0.0001,
+        audioCtx.currentTime + duration
+    );
+
+
+    osc.connect(gain);
+
+    gain.connect(audioCtx.destination);
+
+
+    osc.start();
+
+    osc.stop(
+        audioCtx.currentTime + duration
+    );
+}
+
+
+function jumpSound() {
+
+    beep(300, .07);
+
+    setTimeout(
+        () => beep(450, .07),
+        35
+    );
+}
+
+
+function collectSound() {
+
+    beep(700, .06);
+
+    setTimeout(
+        () => beep(1000, .08),
+        45
+    );
+}
+
+
+function hurtSound() {
+
+    beep(
+        120,
+        .18,
+        "sawtooth",
+        .05
+    );
+
+    setTimeout(
+        () =>
+            beep(
+                80,
+                .18,
+                "sawtooth",
+                .04
+            ),
+        70
+    );
+}
+
+
+function winSound() {
+
+    const notes = [
+        523,
+        659,
+        784,
+        1047,
+        1319
+    ];
+
+    notes.forEach(
+        (n, i) => {
+
+            setTimeout(
+                () =>
+                    beep(
+                        n,
+                        .16,
+                        "square",
+                        .05
+                    ),
+                i * 120
+            );
+
+        }
+    );
+}
+
+
+/* ============================================================
+   KEYBOARD INPUT
+   ============================================================ */
+
+const keys = {};
+
+
+/*
+ * FIX:
+ * Keeps track of whether jump was already held.
+ *
+ * This prevents holding Space/Up from repeatedly
+ * triggering jumps every time Dad lands.
+ */
+let jumpWasDown = false;
+
+
+function clearKeys() {
+
+    for (const key in keys) {
+        keys[key] = false;
+    }
+
+    jumpWasDown = false;
+}
+
+
+window.addEventListener(
+    "keydown",
+    e => {
+
+        const key =
+            e.key.toLowerCase();
+
+
+        keys[key] = true;
+
+
+        if (
+            [
+                "arrowleft",
+                "arrowright",
+                "arrowup",
+                " ",
+                "w",
+                "a",
+                "d"
+            ].includes(key)
+        ) {
+
+            e.preventDefault();
+
+        }
+
+
+        startAudio();
+
+
+        if (
+            (
+                game.state === "title" ||
+                game.state === "gameover" ||
+                game.state === "win"
+            ) &&
+            (
+                key === "enter" ||
+                key === " "
+            )
+        ) {
+
+            startGame();
+
+        }
+
+    }
+);
+
+
+window.addEventListener(
+    "keyup",
+    e => {
+
+        const key =
+            e.key.toLowerCase();
+
+
+        keys[key] = false;
+
+
+        /*
+         * FIX:
+         * Releasing jump makes the next press a
+         * fresh jump.
+         */
+        if (key === " ") {
+            jumpWasDown = false;
+        }
+
+    }
+);
+
+
+/*
+ * FIX:
+ * Prevent movement keys from becoming stuck when
+ * the player changes tabs, switches apps, etc.
+ */
+window.addEventListener(
+    "blur",
+    clearKeys
+);
+
+
+document.addEventListener(
+    "visibilitychange",
+    () => {
+
+        if (document.hidden) {
+            clearKeys();
+        }
+
+    }
+);
+
+
+/* ============================================================
+   MOBILE CONTROLS
+   ============================================================ */
+
+
+/*
+ * FIX:
+ * Pointer events are used instead of separate mouse/touch
+ * handlers. Pointer capture makes holding a button much
+ * more reliable on phones and tablets.
+ */
+
+function touchControl(
+    id,
+    key
+) {
+
+    const el =
+        document.getElementById(id);
+
+
+    const down = e => {
+
+        e.preventDefault();
+
+        startAudio();
+
+        keys[key] = true;
+
+
+        if (
+            el.setPointerCapture
+        ) {
+
+            try {
+
+                el.setPointerCapture(
+                    e.pointerId
+                );
+
+            }
+            catch (_) {}
+
+        }
+
+    };
+
+
+    const up = e => {
+
+        e.preventDefault();
+
+        keys[key] = false;
+
+
+        if (key === " ") {
+            jumpWasDown = false;
+        }
+
+    };
+
+
+    el.addEventListener(
+        "pointerdown",
+        down
+    );
+
+
+    el.addEventListener(
+        "pointerup",
+        up
+    );
+
+
+    el.addEventListener(
+        "pointercancel",
+        up
+    );
+
+
+    el.addEventListener(
+        "lostpointercapture",
+        up
+    );
+
+}
+
+
+touchControl(
+    "left",
+    "arrowleft"
+);
+
+
+touchControl(
+    "right",
+    "arrowright"
+);
+
+
+touchControl(
+    "jump",
+    " "
+);
+
+/* Keep the game correctly sized after phone rotation/resizing. */
+function refreshMobileLayout() {
+    document.documentElement.style.setProperty(
+        "--vw", `${window.innerWidth}px`
+    );
+    document.documentElement.style.setProperty(
+        "--vh", `${window.innerHeight}px`
+    );
+}
+
+window.addEventListener("resize", refreshMobileLayout);
+window.addEventListener("orientationchange", () => {
+    setTimeout(refreshMobileLayout, 50);
+    setTimeout(refreshMobileLayout, 250);
+});
+
+if (window.visualViewport) {
+    window.visualViewport.addEventListener(
+        "resize",
+        refreshMobileLayout
+    );
+}
+
+refreshMobileLayout();
+
+
+
+/* ============================================================
+   TAP SCREEN TO START / RESTART
+   ============================================================ */
+
+
+canvas.addEventListener(
+    "touchstart",
+    e => {
+
+        e.preventDefault();
+
+        startAudio();
+
+
+        if (
+            game.state === "title"
+        ) {
+
+            startGame();
+
+        }
+
+
+        else if (
+            game.state === "gameover"
+        ) {
+
+            startGame();
+
+        }
+
+
+        else if (
+            game.state === "win"
+        ) {
+
+            startGame();
+
+        }
+
+    },
+    { passive:false }
+);
+
+
+canvas.addEventListener(
+    "click",
+    () => {
+
+        startAudio();
+
+
+        if (
+            game.state === "title"
+        ) {
+
+            startGame();
+
+        }
+
+
+        else if (
+            game.state === "gameover"
+        ) {
+
+            startGame();
+
+        }
+
+
+        else if (
+            game.state === "win"
+        ) {
+
+            startGame();
+
+        }
+
+    }
+);
+
+
+/* ============================================================
+   PARTICLES
+   ============================================================ */
+
+const particles = [];
+
+
+function particle(
+    x,
+    y,
+    color,
+    amount = 8,
+    speed = 3
+) {
+
+    for (
+        let i = 0;
+        i < amount;
+        i++
+    ) {
+
+        particles.push({
+
+            x,
+            y,
+
+            vx:
+                (Math.random() - .5)
+                * speed * 2,
+
+            vy:
+                (Math.random() - .8)
+                * speed * 2,
+
+            life:
+                30 +
+                Math.random() * 30,
+
+            color,
+
+            size:
+                3 +
+                Math.random() * 4
+
+        });
+
+    }
+}
+
+
+function updateParticles() {
+
+    for (
+        let i = particles.length - 1;
+        i >= 0;
+        i--
+    ) {
+
+        const p =
+            particles[i];
+
+
+        p.x += p.vx;
+
+        p.y += p.vy;
+
+        p.vy += .12;
+
+        p.life--;
+
+
+        if (p.life <= 0) {
+
+            particles.splice(i, 1);
+
+        }
+
+    }
+}
+
+
+function drawParticles() {
+
+    for (
+        const p of particles
+    ) {
+
+        ctx.fillStyle =
+            p.color;
+
+
+        ctx.fillRect(
+            Math.floor(p.x),
+            Math.floor(p.y),
+            Math.ceil(p.size),
+            Math.ceil(p.size)
+        );
+
+    }
+}
+
+
+/* ============================================================
+   GAME STATE
+   ============================================================ */
+
+const game = {
+
+    state: "title",
+
+    level: 0,
+
+    score: 0,
+
+    lives: 3,
+
+    presents: 0,
+
+    cameraX: 0,
+
+    shake: 0,
+
+    timer: 0,
+
+    message: "",
+
+    messageTimer: 0
+
+};
+
+
+const LEVEL_NAMES = [
+
+    "THE LIVING ROOM OF DOOM",
+
+    "THE BACKYARD BIRTHDAY BATTLE",
+
+    "THE KITCHEN HAS HAD ENOUGH",
+
+    "THE HIGHWAY OF QUESTIONABLE DECISIONS",
+
+    "THE FLOATING PARTY DIMENSION",
+
+    "THE FINAL BIRTHDAY MELTDOWN"
+
+];
+
+
+/* ============================================================
+   PLAYER
+   ============================================================ */
+
+const player = {
+
+    x: 70,
+
+    y: 350,
+
+    w: 30,
+
+    h: 42,
+
+    vx: 0,
+
+    vy: 0,
+
+    speed: .7,
+
+    maxSpeed: 5.8,
+
+    jump: 12.2,
+
+    grounded: false,
+
+    coyote: 0,
+
+    invincible: 0,
+
+    facing: 1
+
+};
+
+
+/* ============================================================
+   LEVEL DATA
+   ============================================================ */
+
+let platforms = [];
+
+let hazards = [];
+
+let collectibles = [];
+
+let enemies = [];
+
+let goal = null;
+
+
+let levelWidth = 5000;
+
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+
+function rectsOverlap(
+    a,
+    b
+) {
+
+    return (
+
+        a.x <
+        b.x + b.w &&
+
+        a.x + a.w >
+        b.x &&
+
+        a.y <
+        b.y + b.h &&
+
+        a.y + a.h >
+        b.y
+
+    );
+
+}
+
+
+function clamp(
+    v,
+    a,
+    b
+) {
+
+    return Math.max(
+        a,
+        Math.min(b, v)
+    );
+
+}
+
+
+function rand(
+    a,
+    b
+) {
+
+    return (
+        a +
+        Math.random() *
+        (b - a)
+    );
+
+}
+
+
+function addPlatform(
+    x,
+    y,
+    w,
+    h = 24,
+    color = "#25e7ff"
+) {
+
+    platforms.push({
+
+        x,
+        y,
+        w,
+        h,
+        color
+
+    });
+
+}
+
+
+function addHazard(
+    x,
+    y,
+    w,
+    h,
+    type = "spike"
+) {
+
+    hazards.push({
+
+        x,
+        y,
+        w,
+        h,
+
+        type,
+
+        phase:
+            Math.random() *
+            Math.PI * 2,
+
+        speed:
+            rand(.03, .08)
+
+    });
+
+}
+
+
+function addEnemy(
+    x,
+    y,
+    type = "walker"
+) {
+
+    enemies.push({
+
+        x,
+        y,
+
+        w: 34,
+
+        h: 34,
+
+        vx:
+            rand(-1,1),
+
+        type,
+
+        phase:
+            Math.random() * 10,
+
+        dead: false
+
+    });
+
+}
+
+
+function addPresent(
+    x,
+    y
+) {
+
+    collectibles.push({
+
+        x,
+        y,
+
+        w: 20,
+
+        h: 20,
+
+        collected: false,
+
+        phase:
+            Math.random() * 10
+
+    });
+
+}
+
+
+/* ============================================================
+   LEVEL GENERATION
+   ============================================================ */
+
+function resetWorld() {
+
+    platforms = [];
+
+    hazards = [];
+
+    collectibles = [];
+
+    enemies = [];
+
+    goal = null;
+
+
+    player.x = 70;
+
+    player.y = 350;
+
+    player.vx = 0;
+
+    player.vy = 0;
+
+    player.grounded = false;
+
+    player.coyote = 0;
+
+    player.invincible = 0;
+
+
+    /*
+     * FIX:
+     * Make sure a previously-held jump button doesn't
+     * carry into the new level.
+     */
+    jumpWasDown = false;
+
+
+    game.cameraX = 0;
+
+}
+
+
+function generateLevel(
+    index
+) {
+
+    resetWorld();
+
+
+    const colors = [
+        ["#25e7ff", "#ff2bd6"],
+        ["#62ff44", "#ffe600"],
+        ["#ff8c42", "#ff2bd6"]
+    ];
+
+
+    let [
+        platformColor,
+        accent
+    ] =
+        colors[index];
+
+
+    /* Ground */
+
+    addPlatform(
+        0,
+        480,
+        levelWidth,
+        60,
+        "#181848"
+    );
+
+
+    /* Platform path */
+
+    let x = 120;
+
+    let y = 390;
+
+
+    while (
+        x <
+        levelWidth - 500
+    ) {
+
+        const gap = rand(45, 80);
+
+
+        const width =
+            rand(110, 240);
+
+
+        y += rand(-45, 45);
+
+
+        y =
+            clamp(
+                y,
+                260,
+                420
+            );
+
+
+        addPlatform(
+            x,
+            y,
+            width,
+            22,
+            platformColor
+        );
+
+
+        if (
+            Math.random() < .80
+        ) {
+
+            addPresent(
+
+                x +
+                width / 2 -
+                10,
+
+                y - 32
+
+            );
+
+        }
+
+
+        if (
+            Math.random() < .28 + index * .06
+        ) {
+
+            addHazard(
+
+                x +
+                width +
+                gap / 2 -
+                12,
+
+                455,
+
+                24,
+
+                25,
+
+                index >= 3
+                    ? "fire"
+                    : "spike"
+
+            );
+
+        }
+
+
+        if (
+            Math.random() < .22 + index * .05
+        ) {
+
+            addEnemy(
+
+                x +
+                rand(
+                    20,
+                    width - 30
+                ),
+
+                y - 35,
+
+                index >= 4
+                    ? "flyer"
+                    : "walker"
+
+            );
+
+        }
+
+
+        x +=
+            width +
+            gap;
+
+    }
+
+
+    /* Goal */
+
+    addPlatform(
+
+        levelWidth - 600,
+
+        300,
+
+        300,
+
+        25,
+
+        accent
+
+    );
+
+
+    goal = {
+
+        x:
+            levelWidth - 430,
+
+        y: 235,
+
+        w: 105,
+
+        h: 80
+
+    };
+
+
+    showMessage(
+        LEVEL_NAMES[index],
+        160
+    );
+
+}
+
+
+/* ============================================================
+   GAME START / RESTART
+   ============================================================ */
+
+function startGame() {
+
+    /*
+     * FIX:
+     * Clear all held controls when starting/restarting.
+     */
+    clearKeys();
+
+
+    game.state = "playing";
+
+    game.level = 0;
+
+    game.score = 0;
+
+    game.lives = 3;
+
+    game.presents = 0;
+
+    game.timer = 0;
+
+
+    generateLevel(0);
+
+}
+
+
+function restartLevel() {
+
+    clearKeys();
+
+
+    game.state = "playing";
+
+    game.lives--;
+
+
+    if (
+        game.lives <= 0
+    ) {
+
+        game.state = "gameover";
+
+        return;
+
+    }
+
+
+    generateLevel(
+        game.level
+    );
+
+}
+
+
+function nextLevel() {
+
+    clearKeys();
+
+
+    game.level++;
+
+
+    if (
+        game.level >= 3
+    ) {
+
+        game.state = "win";
+
+        winSound();
+
+        particle(
+            W / 2,
+            H / 2,
+            "#ff2bd6",
+            80,
+            8
+        );
+
+        return;
+
+    }
+
+
+    generateLevel(
+        game.level
+    );
+
+}
+
+
+function showMessage(
+    text,
+    time = 100
+) {
+
+    game.message = text;
+
+    game.messageTimer = time;
+
+}
+
+
+/* ============================================================
+   PLAYER PHYSICS
+   ============================================================ */
+
+function updatePlayer() {
+
+    if (
+        player.invincible > 0
+    ) {
+        player.invincible--;
+    }
+
+
+    const left =
+        keys["arrowleft"] ||
+        keys["a"];
+
+
+    const right =
+        keys["arrowright"] ||
+        keys["d"];
+
+
+    const jump =
+        keys["arrowup"] ||
+        keys["w"] ||
+        keys[" "] ||
+        keys["spacebar"];
+
+
+    /*
+     * FIX:
+     * Only trigger a jump when the button transitions
+     * from released -> pressed.
+     *
+     * This stops holding the jump button from producing
+     * repeated automatic jumps.
+     */
+    const jumpPressed =
+        jump &&
+        !jumpWasDown;
+
+
+    jumpWasDown = !!jump;
+
+
+    if (left) {
+
+        player.vx -=
+            player.speed;
+
+        player.facing = -1;
+
+    }
+
+
+    if (right) {
+
+        player.vx +=
+            player.speed;
+
+        player.facing = 1;
+
+    }
+
+
+    if (
+        !left &&
+        !right
+    ) {
+
+        player.vx *= .82;
+
+    }
+
+
+    player.vx =
+        clamp(
+            player.vx,
+            -player.maxSpeed,
+            player.maxSpeed
+        );
+
+
+    player.vy += .48;
+
+
+    if (
+        player.grounded
+    ) {
+
+        player.coyote = 12;
+
+    }
+    else {
+
+        player.coyote--;
+
+    }
+
+
+    if (
+        jumpPressed &&
+        player.coyote > 0
+    ) {
+
+        player.vy =
+            -player.jump;
+
+        player.grounded = false;
+
+        player.coyote = 0;
+
+        jumpSound();
+
+    }
+
+
+    player.x +=
+        player.vx;
+
+
+    player.x =
+        Math.max(
+            0,
+            player.x
+        );
+
+
+    player.y +=
+        player.vy;
+
+
+    player.grounded =
+        false;
+
+
+    for (
+        const p of platforms
+    ) {
+
+        if (
+
+            player.x +
+            player.w >
+            p.x &&
+
+            player.x <
+            p.x + p.w &&
+
+            player.y +
+            player.h >
+            p.y &&
+
+            player.y +
+            player.h <
+            p.y +
+            p.h +
+            20 &&
+
+            player.vy >= 0
+
+        ) {
+
+            player.y =
+                p.y -
+                player.h;
+
+            player.vy = 0;
+
+            player.grounded =
+                true;
+
+        }
+
+    }
+
+
+    /*
+     * FIX:
+     * Stop processing this frame after Dad falls
+     * out of the world.
+     */
+    if (
+        player.y >
+        H + 150
+    ) {
+
+        hurtPlayer();
+
+        return;
+
+    }
+
+}
+
+
+/* ============================================================
+   HAZARDS
+   ============================================================ */
+
+function updateHazards() {
+
+    for (
+        const h of hazards
+    ) {
+
+        h.phase +=
+            h.speed;
+
+
+        if (
+            h.type ===
+            "falling"
+        ) {
+
+            h.y += 2.2;
+
+
+            if (
+                h.y >
+                H + 50
+            ) {
+
+                h.y =
+                    rand(-200,0);
+
+            }
+
+        }
+
+
+        if (
+            h.type ===
+            "partyball"
+        ) {
+
+            h.x +=
+                Math.sin(
+                    h.phase
+                ) * 1.8;
+
+
+            h.y +=
+                Math.cos(
+                    h.phase * 1.5
+                ) * 1.4;
+
+        }
+
+    }
+
+}
+
+
+/* ============================================================
+   ENEMIES
+   ============================================================ */
+
+function updateEnemies() {
+
+    for (
+        const e of enemies
+    ) {
+
+        e.phase += .05;
+
+
+        if (
+            e.dead
+        ) continue;
+
+
+        if (
+            e.type ===
+            "walker"
+        ) {
+
+            e.x +=
+                Math.sin(
+                    e.phase
+                ) * 1.2;
+
+        }
+
+
+        if (
+            e.type ===
+            "flyer"
+        ) {
+
+            e.x +=
+                Math.sin(
+                    e.phase
+                ) * 2;
+
+
+            e.y +=
+                Math.cos(
+                    e.phase * 1.7
+                ) * 1.2;
+
+        }
+
+
+        if (
+            e.type ===
+            "flyingcake"
+        ) {
+
+            e.x +=
+                Math.sin(
+                    e.phase * 1.4
+                ) * 2.5;
+
+
+            e.y +=
+                Math.cos(
+                    e.phase
+                ) * 2;
+
+        }
+
+    }
+
+}
+
+
+/* ============================================================
+   DAMAGE
+   ============================================================ */
+
+function hurtPlayer() {
+
+    if (
+        player.invincible > 0
+    ) return;
+
+
+    player.invincible =
+        100;
+
+
+    hurtSound();
+
+
+    particle(
+
+        player.x +
+        player.w / 2,
+
+        player.y +
+        player.h / 2,
+
+        "#ff3030",
+
+        20,
+
+        5
+
+    );
+
+
+    game.shake = 15;
+
+
+    game.lives--;
+
+
+    if (
+        game.lives <= 0
+    ) {
+
+        game.state =
+            "gameover";
+
+        clearKeys();
+
+        return;
+
+    }
+
+
+    player.x =
+        Math.max(
+            50,
+            player.x - 180
+        );
+
+
+    player.y = 250;
+
+    player.vx = 0;
+
+    player.vy = 0;
+
+}
+
+
+/* ============================================================
+   COLLISIONS
+   ============================================================ */
+
+function collisionCheck() {
+
+    const pbox = {
+
+        x:
+            player.x + 4,
+
+        y:
+            player.y + 3,
+
+        w:
+            player.w - 8,
+
+        h:
+            player.h - 5
+
+    };
+
+
+    /* Hazards */
+
+    for (
+        const h of hazards
+    ) {
+
+        if (
+            rectsOverlap(
+                pbox,
+                h
+            )
+        ) {
+
+            hurtPlayer();
+
+            /*
+             * FIX:
+             * Stop collision processing after damage.
+             */
+            return;
+
+        }
+
+    }
+
+
+    /* Enemies */
+
+    for (
+        const e of enemies
+    ) {
+
+        if (
+            e.dead
+        ) continue;
+
+
+        const ebox = {
+
+            x: e.x,
+
+            y: e.y,
+
+            w: e.w,
+
+            h: e.h
+
+        };
+
+
+        if (
+            rectsOverlap(
+                pbox,
+                ebox
+            )
+        ) {
+
+
+            /* Jump on enemy */
+
+            if (
+
+                player.vy > 0 &&
+
+                player.y +
+                player.h <
+                e.y + 18
+
+            ) {
+
+                e.dead = true;
+
+                player.vy = -8;
+
+                game.score += 500;
+
+
+                particle(
+
+                    e.x + 15,
+
+                    e.y + 15,
+
+                    "#ffe600",
+
+                    18,
+
+                    5
+
+                );
+
+
+                beep(500,.06);
+
+            }
+
+            else {
+
+                hurtPlayer();
+
+                /*
+                 * FIX:
+                 * Stop processing after taking damage.
+                 */
+                return;
+
+            }
+
+        }
+
+    }
+
+
+    /* Presents */
+
+    for (
+        const c of collectibles
+    ) {
+
+        if (
+            c.collected
+        ) continue;
+
+
+        const cbox = {
+
+            x: c.x,
+
+            y: c.y,
+
+            w: c.w,
+
+            h: c.h
+
+        };
+
+
+        if (
+            rectsOverlap(
+                pbox,
+                cbox
+            )
+        ) {
+
+            c.collected =
+                true;
+
+
+            game.presents++;
+
+
+            game.score += 100;
+
+
+            collectSound();
+
+
+            particle(
+
+                c.x + 10,
+
+                c.y + 10,
+
+                "#ffe600",
+
+                12,
+
+                4
+
+            );
+
+        }
+
+    }
+
+
+    /* Goal */
+
+    if (goal) {
+
+        const gbox = {
+
+            x: goal.x,
+
+            y: goal.y,
+
+            w: goal.w,
+
+            h: goal.h
+
+        };
+
+
+        if (
+            rectsOverlap(
+                pbox,
+                gbox
+            )
+        ) {
+
+            game.score += 1000;
+
+            nextLevel();
+
+        }
+
+    }
+
+}
+
+
+/* ============================================================
+   UPDATE
+   ============================================================ */
+
+function update() {
+
+    if (
+        game.state !==
+        "playing"
+    ) {
+
+        updateParticles();
+
+        return;
+
+    }
+
+
+    game.timer++;
+
+
+    updatePlayer();
+
+    updateHazards();
+
+    updateEnemies();
+
+    collisionCheck();
+
+    updateParticles();
+
+
+    if (
+        game.messageTimer > 0
+    ) {
+
+        game.messageTimer--;
+
+    }
+
+
+    const targetCamera =
+        player.x -
+        W * .35;
+
+
+    game.cameraX +=
+
+        (
+            targetCamera -
+            game.cameraX
+        ) * .08;
+
+
+    game.cameraX =
+        clamp(
+            game.cameraX,
+            0,
+            levelWidth - W
+        );
+
+
+    if (
+        game.shake > 0
+    ) {
+
+        game.shake *= .85;
+
+
+        if (
+            game.shake < .5
+        ) {
+
+            game.shake = 0;
+
+        }
+
+    }
+
+}
+
+
+/* ============================================================
+   SCREEN SHAKE
+   ============================================================ */
+
+function screenShake() {
+
+    if (
+        !game.shake
+    ) return;
+
+
+    ctx.translate(
+
+        (
+            Math.random() -
+            .5
+        ) * game.shake,
+
+        (
+            Math.random() -
+            .5
+        ) * game.shake
+
+    );
+
+}
+
+
+/* ============================================================
+   BACKGROUND
+   ============================================================ */
+
+function drawBackground() {
+
+    const level =
+        game.level;
+
+
+    const skies = [
+
+        ["#14002d","#32005c"],
+
+        ["#001b35","#004b5f"],
+
+        ["#260019","#6b003f"],
+
+        ["#07152e","#123e73"],
+
+        ["#250044","#7400a8"],
+
+        ["#350000","#8d003d"]
+
+    ];
+
+
+    const [
+        top,
+        bottom
+    ] =
+        skies[level] ||
+        skies[0];
+
+
+    const grad =
+        ctx.createLinearGradient(
+            0,
+            0,
+            0,
+            H
+        );
+
+
+    grad.addColorStop(
+        0,
+        top
+    );
+
+
+    grad.addColorStop(
+        1,
+        bottom
+    );
+
+
+    ctx.fillStyle =
+        grad;
+
+
+    ctx.fillRect(
+        0,
+        0,
+        W,
+        H
+    );
+
+
+    /* Stars */
+
+    for (
+        let i = 0;
+        i < 80;
+        i++
+    ) {
+
+        const x =
+
+            (
+                i * 127 -
+                game.cameraX * .15
+            )
+            %
+            (W + 100);
+
+
+        const y =
+            (i * 53) % 250;
+
+
+        ctx.fillStyle =
+            i % 3 === 0
+            ? "#fff"
+            : "#a5e8ff";
+
+
+        ctx.fillRect(
+
+            (
+                x + W
+            ) % W,
+
+            y,
+
+            2,
+
+            2
+
+        );
+
+    }
+
+
+    /* Moon */
+
+    ctx.fillStyle =
+        "#ffeb75";
+
+
+    ctx.beginPath();
+
+
+    ctx.arc(
+
+        W - 110,
+
+        95,
+
+        45,
+
+        0,
+
+        Math.PI * 2
+
+    );
+
+
+    ctx.fill();
+
+
+    ctx.fillStyle =
+        "#d3b53c";
+
+
+    ctx.fillRect(
+        W - 130,
+        80,
+        10,
+        8
+    );
+
+
+    ctx.fillRect(
+        W - 100,
+        110,
+        8,
+        8
+    );
+
+
+    ctx.fillRect(
+        W - 115,
+        120,
+        14,
+        7
+    );
+
+}
+
+
+/* ============================================================
+   PLATFORMS
+   ============================================================ */
+
+function drawPlatforms() {
+
+    for (
+        const p of platforms
+    ) {
+
+        const x =
+            p.x -
+            game.cameraX;
+
+
+        if (
+            x + p.w < -20 ||
+            x > W + 20
+        ) continue;
+
+
+        ctx.fillStyle =
+            p.color;
+
+
+        ctx.fillRect(
+            x,
+            p.y,
+            p.w,
+            p.h
+        );
+
+
+        ctx.fillStyle =
+            "#080818";
+
+
+        ctx.fillRect(
+
+            x,
+
+            p.y + 8,
+
+            p.w,
+
+            p.h - 8
+
+        );
+
+
+        ctx.fillStyle =
+            p.color;
+
+
+        for (
+            let i = 0;
+            i < p.w;
+            i += 24
+        ) {
+
+            ctx.fillRect(
+
+                x + i,
+
+                p.y + 2,
+
+                12,
+
+                4
+
+            );
+
+        }
+
+    }
+
+}
+
+
+/* ============================================================
+   HAZARDS
+   ============================================================ */
+
+function drawHazards() {
+
+    for (
+        const h of hazards
+    ) {
+
+        const x =
+            h.x -
+            game.cameraX;
+
+
+        if (
+            x < -50 ||
+            x > W + 50
+        ) continue;
+
+
+        /* SPIKE */
+
+        if (
+            h.type ===
+            "spike"
+        ) {
+
+            ctx.fillStyle =
+                "#ff3030";
+
+
+            ctx.beginPath();
+
+
+            ctx.moveTo(
+                x,
+                h.y + h.h
+            );
+
+
+            ctx.lineTo(
+                x + h.w / 2,
+                h.y
+            );
+
+
+            ctx.lineTo(
+                x + h.w,
+                h.y + h.h
+            );
+
+
+            ctx.closePath();
+
+
+            ctx.fill();
+
+
+            ctx.fillStyle =
+                "#ffe600";
+
+
+            ctx.fillRect(
+                x + 10,
+                h.y + 17,
+                5,
+                5
+            );
+
+        }
+
+
+        /* FIRE */
+
+        else if (
+            h.type ===
+            "fire"
+        ) {
+
+            ctx.fillStyle =
+                "#ff2d00";
+
+
+            ctx.fillRect(
+                x,
+                h.y,
+                h.w,
+                h.h
+            );
+
+
+            ctx.fillStyle =
+                "#ffe600";
+
+
+            ctx.fillRect(
+
+                x + 6,
+
+                h.y + 5,
+
+                h.w - 12,
+
+                h.h - 10
+
+            );
+
+
+            ctx.fillStyle =
+                "#fff";
+
+
+            ctx.fillRect(
+
+                x + 11,
+
+                h.y + 3,
+
+                5,
+
+                7
+
+            );
+
+        }
+
+
+        /* PARTY BALL */
+
+        else if (
+            h.type ===
+            "partyball"
+        ) {
+
+            ctx.fillStyle =
+                "#ff2bd6";
+
+
+            ctx.beginPath();
+
+
+            ctx.arc(
+
+                x + 12,
+
+                h.y + 12,
+
+                12,
+
+                0,
+
+                Math.PI * 2
+
+            );
+
+
+            ctx.fill();
+
+
+            ctx.fillStyle =
+                "#ffe600";
+
+
+            ctx.fillRect(
+                x + 9,
+                h.y + 4,
+                6,
+                6
+            );
+
+
+            ctx.fillStyle =
+                "#25e7ff";
+
+
+            ctx.fillRect(
+                x + 3,
+                h.y + 15,
+                5,
+                5
+            );
+
+        }
+
+    }
+
+}
+
+
+/* ============================================================
+   ENEMIES
+   ============================================================ */
+
+function drawEnemies() {
+
+    for (
+        const e of enemies
+    ) {
+
+        if (
+            e.dead
+        ) continue;
+
+
+        const x =
+            e.x -
+            game.cameraX;
+
+
+        /* FLYING CAKE */
+
+        if (
+            e.type ===
+            "flyingcake"
+        ) {
+
+            ctx.fillStyle =
+                "#ff9bcf";
+
+
+            ctx.fillRect(
+                x,
+                e.y + 10,
+                34,
+                20
+            );
+
+
+            ctx.fillStyle =
+                "#fff";
+
+
+            ctx.fillRect(
+                x + 4,
+                e.y + 5,
+                26,
+                9
+            );
+
+
+            ctx.fillStyle =
+                "#ff3030";
+
+
+            ctx.fillRect(
+                x + 10,
+                e.y + 2,
+                5,
+                7
+            );
+
+
+            ctx.fillRect(
+                x + 22,
+                e.y + 1,
+                5,
+                9
+            );
+
+
+            ctx.fillStyle =
+                "#222";
+
+
+            ctx.fillRect(
+                x + 8,
+                e.y + 15,
+                4,
+                4
+            );
+
+
+            ctx.fillRect(
+                x + 23,
+                e.y + 15,
+                4,
+                4
+            );
+
+        }
+
+
+        /* NORMAL ENEMY */
+
+        else {
+
+            ctx.fillStyle =
+
+                e.type ===
+                "flyer"
+
+                ? "#62ff44"
+
+                : "#ff6b35";
+
+
+            ctx.fillRect(
+
+                x,
+
+                e.y,
+
+                e.w,
+
+                e.h
+
+            );
+
+
+            ctx.fillStyle =
+                "#111";
+
+
+            ctx.fillRect(
+                x + 7,
+                e.y + 9,
+                6,
+                6
+            );
+
+
+            ctx.fillRect(
+                x + 22,
+                e.y + 9,
+                6,
+                6
+            );
+
+
+            ctx.fillStyle =
+                "#fff";
+
+
+            ctx.fillRect(
+                x + 5,
+                e.y + 25,
+                24,
+                4
+            );
+
+        }
+
+    }
+
+}
+
+
+/* ============================================================
+   PRESENTS
+   ============================================================ */
+
+function drawCollectibles() {
+
+    for (
+        const c of collectibles
+    ) {
+
+        if (
+            c.collected
+        ) continue;
+
+
+        const x =
+            c.x -
+            game.cameraX;
+
+
+        const bob =
+
+            Math.sin(
+                game.timer * .08 +
+                c.phase
+            ) * 4;
+
+
+        ctx.fillStyle =
+            "#ff2bd6";
+
+
+        ctx.fillRect(
+
+            x,
+
+            c.y + bob,
+
+            20,
+
+            18
+
+        );
+
+
+        ctx.fillStyle =
+            "#ffe600";
+
+
+        ctx.fillRect(
+
+            x + 8,
+
+            c.y + bob,
+
+            4,
+
+            18
+
+        );
+
+
+        ctx.fillRect(
+
+            x,
+
+            c.y + bob + 7,
+
+            20,
+
+            4
+
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   FINISH FLAG
+   ============================================================ */
+
+function drawGoal() {
+
+    if (!goal) return;
+
+
+    const x =
+        goal.x -
+        game.cameraX;
+
+
+    ctx.fillStyle =
+        "#ffe600";
+
+
+    ctx.fillRect(
+
+        x + 35,
+
+        goal.y + 8,
+
+        10,
+
+        58
+
+    );
+
+
+    ctx.fillStyle =
+        "#ff2bd6";
+
+
+    ctx.beginPath();
+
+
+    ctx.moveTo(
+        x + 45,
+        goal.y + 5
+    );
+
+
+    ctx.lineTo(
+        x + 90,
+        goal.y + 20
+    );
+
+
+    ctx.lineTo(
+        x + 45,
+        goal.y + 35
+    );
+
+
+    ctx.closePath();
+
+
+    ctx.fill();
+
+
+    ctx.fillStyle =
+        "#fff";
+
+
+    ctx.font =
+        "bold 12px monospace";
+
+
+    ctx.textAlign =
+        "center";
+
+
+    ctx.fillText(
+
+        "FINISH!",
+
+        x + 40,
+
+        goal.y - 12
+
+    );
+
+}
+
+
+/* ============================================================
+   DAD CHARACTER
+   ============================================================ */
+
+function drawPlayer() {
+
+    /* Blinking after damage */
+
+    if (
+
+        player.invincible > 0 &&
+
+        Math.floor(
+            player.invincible / 5
+        ) % 2 === 0
+
+    ) {
+
+        return;
+
+    }
+
+
+    const x =
+        player.x -
+        game.cameraX;
+
+
+    const y =
+        player.y;
+
+
+    /* Shadow */
+
+    ctx.fillStyle =
+        "rgba(0,0,0,.35)";
+
+
+    ctx.fillRect(
+
+        x + 3,
+
+        y + player.h + 3,
+
+        25,
+
+        5
+
+    );
+
+
+    /* Legs */
+
+    ctx.fillStyle =
+        "#2344aa";
+
+
+    ctx.fillRect(
+        x + 5,
+        y + 28,
+        8,
+        14
+    );
+
+
+    ctx.fillRect(
+        x + 18,
+        y + 28,
+        8,
+        14
+    );
+
+
+    /* Body */
+
+    ctx.fillStyle =
+        "#ff8c42";
+
+
+    ctx.fillRect(
+
+        x + 3,
+
+        y + 15,
+
+        25,
+
+        17
+
+    );
+
+
+    /* Shirt stripe */
+
+    ctx.fillStyle =
+        "#ffe600";
+
+
+    ctx.fillRect(
+
+        x + 3,
+
+        y + 19,
+
+        25,
+
+        4
+
+    );
+
+
+    /* Face */
+
+    ctx.fillStyle =
+        "#f2b27c";
+
+
+    ctx.fillRect(
+
+        x + 5,
+
+        y + 2,
+
+        21,
+
+        18
+
+    );
+
+
+    /* WHITE HAIR */
+
+    ctx.fillStyle =
+        "#f5f5f5";
+
+
+    ctx.fillRect(
+
+        x + 5,
+
+        y,
+
+        21,
+
+        6
+
+    );
+
+
+    ctx.fillRect(
+
+        x + 3,
+
+        y + 5,
+
+        5,
+
+        9
+
+    );
+
+
+    ctx.fillRect(
+
+        x + 23,
+
+        y + 5,
+
+        5,
+
+        9
+
+    );
+
+
+    /* GRAY GLASSES */
+
+    ctx.fillStyle =
+        "#777";
+
+
+    ctx.fillRect(
+
+        x + 5,
+
+        y + 8,
+
+        9,
+
+        7
+
+    );
+
+
+    ctx.fillRect(
+
+        x + 17,
+
+        y + 8,
+
+        9,
+
+        7
+
+    );
+
+
+    ctx.fillStyle =
+        "#bfc5cc";
+
+
+    ctx.fillRect(
+
+        x + 7,
+
+        y + 10,
+
+        5,
+
+        3
+
+    );
+
+
+    ctx.fillRect(
+
+        x + 19,
+
+        y + 10,
+
+        5,
+
+        3
+
+    );
+
+
+    ctx.fillStyle =
+        "#777";
+
+
+    ctx.fillRect(
+
+        x + 14,
+
+        y + 10,
+
+        4,
+
+        3
+
+    );
+
+
+    /* WHITE BEARD */
+
+    ctx.fillStyle =
+        "#f5f5f5";
+
+
+    ctx.fillRect(
+
+        x + 7,
+
+        y + 15,
+
+        19,
+
+        7
+
+    );
+
+
+    ctx.fillRect(
+
+        x + 10,
+
+        y + 20,
+
+        13,
+
+        5
+
+    );
+
+
+    ctx.fillRect(
+
+        x + 13,
+
+        y + 24,
+
+        7,
+
+        3
+
+    );
+
+
+    /* ARMS */
+
+    ctx.fillStyle =
+        "#f2b27c";
+
+
+    ctx.fillRect(
+
+        x - 4,
+
+        y + 17,
+
+        7,
+
+        13
+
+    );
+
+
+    ctx.fillRect(
+
+        x + 27,
+
+        y + 17,
+
+        7,
+
+        13
+
+    );
+
+
+    /* BIRTHDAY HAT */
+
+    ctx.fillStyle =
+        "#ff2bd6";
+
+
+    ctx.beginPath();
+
+
+    ctx.moveTo(
+        x + 4,
+        y + 3
+    );
+
+
+    ctx.lineTo(
+        x + 15,
+        y - 18
+    );
+
+
+    ctx.lineTo(
+        x + 27,
+        y + 3
+    );
+
+
+    ctx.closePath();
+
+
+    ctx.fill();
+
+
+    ctx.fillStyle =
+        "#ffe600";
+
+
+    ctx.fillRect(
+
+        x + 3,
+
+        y + 1,
+
+        25,
+
+        4
+
+    );
+
+}
+
+
+/* ============================================================
+   HUD
+   ============================================================ */
+
+function drawHUD() {
+
+    ctx.fillStyle =
+        "rgba(0,0,0,.65)";
+
+
+    ctx.fillRect(
+        0,
+        0,
+        W,
+        62
+    );
+
+
+    ctx.font =
+        "bold 18px monospace";
+
+
+    ctx.textAlign =
+        "left";
+
+
+    ctx.fillStyle =
+        "#fff";
+
+
+    ctx.fillText(
+
+        "LEVEL " +
+        Math.min(game.level + 1, 3) +
+        "/3",
+
+        18,
+
+        25
+
+    );
+
+
+    ctx.fillStyle =
+        "#ffe600";
+
+
+    ctx.fillText(
+
+        "SCORE " +
+        game.score,
+
+        18,
+
+        48
+
+    );
+
+
+    ctx.textAlign =
+        "center";
+
+
+    ctx.fillStyle =
+        "#ff2bd6";
+
+
+    ctx.fillText(
+
+        LEVEL_NAMES[
+            game.level
+        ],
+
+        W / 2,
+
+        25
+
+    );
+
+
+    ctx.fillStyle =
+        "#fff";
+
+
+    ctx.fillText(
+
+        "PRESENTS: " +
+        game.presents,
+
+        W / 2,
+
+        48
+
+    );
+
+
+    ctx.textAlign =
+        "right";
+
+
+    ctx.fillStyle =
+        "#ff4444";
+
+
+    ctx.fillText(
+
+        "♥".repeat(
+            Math.max(
+                0,
+                game.lives
+            )
+        ),
+
+        W - 18,
+
+        28
+
+    );
+
+
+    ctx.fillStyle =
+        "#fff";
+
+
+    ctx.fillText(
+
+        "A/D or ←/→ MOVE   SPACE/↑ JUMP",
+
+        W - 18,
+
+        49
+
+    );
+
+}
+
+
+/* ============================================================
+   LEVEL MESSAGE
+   ============================================================ */
+
+function drawMessage() {
+
+    if (
+        game.messageTimer <= 0
+    ) return;
+
+
+    const alpha =
+
+        Math.min(
+            1,
+            game.messageTimer / 20
+        );
+
+
+    ctx.globalAlpha =
+        alpha;
+
+
+    ctx.fillStyle =
+        "rgba(0,0,0,.8)";
+
+
+    ctx.fillRect(
+
+        160,
+
+        210,
+
+        W - 320,
+
+        100
+
+    );
+
+
+    ctx.strokeStyle =
+        "#ff2bd6";
+
+
+    ctx.lineWidth = 4;
+
+
+    ctx.strokeRect(
+
+        160,
+
+        210,
+
+        W - 320,
+
+        100
+
+    );
+
+
+    ctx.fillStyle =
+        "#ffe600";
+
+
+    ctx.font =
+        "bold 25px monospace";
+
+
+    ctx.textAlign =
+        "center";
+
+
+    ctx.fillText(
+
+        game.message,
+
+        W / 2,
+
+        270
+
+    );
+
+
+    ctx.globalAlpha =
+        1;
+
+}
+
+
+/* ============================================================
+   TITLE SCREEN
+   ============================================================ */
+
+function drawTitle() {
+
+    ctx.fillStyle =
+        "#080014";
+
+
+    ctx.fillRect(
+        0,
+        0,
+        W,
+        H
+    );
+
+
+    /* Stars */
+
+    for (
+        let i = 0;
+        i < 100;
+        i++
+    ) {
+
+        ctx.fillStyle =
+
+            i % 4 === 0
+
+            ? "#ff2bd6"
+
+            : "#25e7ff";
+
+
+        ctx.fillRect(
+
+            (i * 97) % W,
+
+            (i * 47) % H,
+
+            3,
+
+            3
+
+        );
+
+    }
+
+
+    ctx.textAlign =
+        "center";
+
+
+    /* DAD'S */
+
+    ctx.fillStyle =
+        "#ff2bd6";
+
+
+    ctx.font =
+        "bold 52px monospace";
+
+
+    ctx.fillText(
+
+        "DAD'S",
+
+        W / 2,
+
+        100
+
+    );
+
+
+    /* BIRTHDAY */
+
+    ctx.fillStyle =
+        "#ffe600";
+
+
+    ctx.font =
+        "bold 44px monospace";
+
+
+    ctx.fillText(
+
+        "BIRTHDAY",
+
+        W / 2,
+
+        155
+
+    );
+
+
+    /* QUEST */
+
+    ctx.fillStyle =
+        "#25e7ff";
+
+
+    ctx.font =
+        "bold 55px monospace";
+
+
+    ctx.fillText(
+
+        "QUEST!",
+
+        W / 2,
+
+        215
+
+    );
+
+
+    /* Character */
+
+    ctx.save();
+
+
+    ctx.translate(
+        W / 2 - 25,
+        275
+    );
+
+
+    ctx.scale(
+        2,
+        2
+    );
+
+
+    const oldX =
+        player.x;
+
+
+    const oldY =
+        player.y;
+
+
+    player.x = 0;
+
+    player.y = 0;
+
+
+    drawPlayer();
+
+
+    player.x =
+        oldX;
+
+
+    player.y =
+        oldY;
+
+
+    ctx.restore();
+
+
+    /* Description */
+
+    ctx.fillStyle =
+        "#fff";
+
+
+    ctx.font =
+        "bold 20px monospace";
+
+
+    ctx.fillText(
+
+        "SURVIVE 6 LEVELS OF",
+
+        W / 2,
+
+        380
+
+    );
+
+
+    ctx.fillText(
+
+        "COMPLETELY RIDICULOUS BIRTHDAY CHAOS",
+
+        W / 2,
+
+        410
+
+    );
+
+
+    /* Start */
+
+    ctx.fillStyle =
+
+        Math.floor(
+            Date.now() / 400
+        ) % 2
+
+        ? "#ffe600"
+
+        : "#ff2bd6";
+
+
+    ctx.font =
+        "bold 26px monospace";
+
+
+    ctx.fillText(
+
+        "PRESS ENTER OR TAP TO START",
+
+        W / 2,
+
+        470
+
+    );
+
+}
+
+
+/* ============================================================
+   GAME OVER
+   ============================================================ */
+
+function drawGameOver() {
+
+    ctx.fillStyle =
+        "rgba(5,0,15,.93)";
+
+
+    ctx.fillRect(
+        0,
+        0,
+        W,
+        H
+    );
+
+
+    ctx.textAlign =
+        "center";
+
+
+    ctx.fillStyle =
+        "#ff3030";
+
+
+    ctx.font =
+        "bold 58px monospace";
+
+
+    ctx.fillText(
+
+        "OH NO, DAD!",
+
+        W / 2,
+
+        190
+
+    );
+
+
+    ctx.fillStyle =
+        "#fff";
+
+
+    ctx.font =
+        "bold 22px monospace";
+
+
+    ctx.fillText(
+
+        "THE BIRTHDAY CHAOS WON...",
+
+        W / 2,
+
+        250
+
+    );
+
+
+    ctx.fillStyle =
+        "#ffe600";
+
+
+    ctx.fillText(
+
+        "BUT DAD CAN TRY AGAIN!",
+
+        W / 2,
+
+        300
+
+    );
+
+
+    ctx.fillStyle =
+
+        Math.floor(
+            Date.now() / 400
+        ) % 2
+
+        ? "#ff2bd6"
+
+        : "#25e7ff";
+
+
+    ctx.font =
+        "bold 24px monospace";
+
+
+    ctx.fillText(
+
+        "PRESS ENTER OR TAP TO RESTART",
+
+        W / 2,
+
+        380
+
+    );
+
+}
+
+
+/* ============================================================
+   WIN SCREEN
+   ============================================================ */
+
+function drawWin() {
+
+    ctx.fillStyle =
+        "#100018";
+
+
+    ctx.fillRect(
+        0,
+        0,
+        W,
+        H
+    );
+
+
+    /* Fireworks */
+
+    for (
+        let i = 0;
+        i < 50;
+        i++
+    ) {
+
+        const angle =
+
+            (
+                i / 50
+            ) *
+            Math.PI *
+            2;
+
+
+        const radius =
+
+            90 +
+            Math.sin(
+                game.timer * .03 +
+                i
+            ) * 40;
+
+
+        const cx =
+
+            W / 2 +
+            Math.cos(angle) *
+            radius;
+
+
+        const cy =
+
+            220 +
+            Math.sin(angle) *
+            radius;
+
+
+        ctx.fillStyle = [
+
+            "#ff2bd6",
+
+            "#25e7ff",
+
+            "#ffe600",
+
+            "#62ff44"
+
+        ][i % 4];
+
+
+        ctx.fillRect(
+
+            cx,
+
+            cy,
+
+            6,
+
+            6
+
+        );
+
+    }
+
+
+    ctx.textAlign =
+        "center";
+
+
+    /* YOU DID IT */
+
+    ctx.fillStyle =
+        "#ffe600";
+
+
+    ctx.font =
+        "bold 54px monospace";
+
+
+    ctx.fillText(
+
+        "YOU DID IT!",
+
+        W / 2,
+
+        105
+
+    );
+
+
+    /* HAPPY BIRTHDAY */
+
+    ctx.fillStyle =
+        "#ff2bd6";
+
+
+    ctx.font =
+        "bold 44px monospace";
+
+
+    ctx.fillText(
+
+        "HAPPY BIRTHDAY DAD!",
+
+        W / 2,
+
+        175
+
+    );
+
+
+    /* LOVE MESSAGE */
+
+    ctx.fillStyle =
+        "#25e7ff";
+
+
+    ctx.font =
+        "bold 30px monospace";
+
+
+    ctx.fillText(
+
+        "I LOVE YOU SOOOO MUCH!",
+
+        W / 2,
+
+        235
+
+    );
+
+
+    /* Score */
+
+    ctx.fillStyle =
+        "#fff";
+
+
+    ctx.font =
+        "bold 20px monospace";
+
+
+    ctx.fillText(
+
+        "FINAL SCORE: " +
+        game.score,
+
+        W / 2,
+
+        305
+
+    );
+
+
+    ctx.fillText(
+
+        "PRESENTS COLLECTED: " +
+        game.presents,
+
+        W / 2,
+
+        340
+
+    );
+
+
+    ctx.fillStyle =
+        "#ffe600";
+
+
+    ctx.font =
+        "bold 22px monospace";
+
+
+    ctx.fillText(
+
+        "🎂 DAD IS THE BIRTHDAY LEGEND! 🎂",
+
+        W / 2,
+
+        405
+
+    );
+
+
+    ctx.fillStyle =
+        "#fff";
+
+
+    ctx.font =
+        "16px monospace";
+
+
+    ctx.fillText(
+
+        "PRESS ENTER OR TAP TO PLAY AGAIN",
+
+        W / 2,
+
+        470
+
+    );
+
+}
+
+
+/* ============================================================
+   MAIN DRAW
+   ============================================================ */
+
+function draw() {
+
+    ctx.save();
+
+
+    screenShake();
+
+
+    if (
+        game.state ===
+        "title"
+    ) {
+
+        drawTitle();
+
+        ctx.restore();
+
+        return;
+
+    }
+
+
+    if (
+        game.state ===
+        "win"
+    ) {
+
+        drawWin();
+
+        ctx.restore();
+
+        return;
+
+    }
+
+
+    if (
+        game.state ===
+        "gameover"
+    ) {
+
+        drawGameOver();
+
+        ctx.restore();
+
+        return;
+
+    }
+
+
+    drawBackground();
+
+    drawPlatforms();
+
+    drawHazards();
+
+    drawEnemies();
+
+    drawCollectibles();
+
+    drawGoal();
+
+    drawPlayer();
+
+    drawParticles();
+
+    drawHUD();
+
+    drawMessage();
+
+
+    ctx.restore();
+
+}
+
+
+/* ============================================================
+   GAME LOOP
+   ============================================================ */
+
+function loop() {
+
+    update();
+
+    draw();
+
+    requestAnimationFrame(
+        loop
+    );
+
+}
+
+
+loop();
+
+</script>
+
+</body>
+</html>
